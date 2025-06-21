@@ -28,12 +28,14 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ( { videoUrl, thumbnailUrl } ) =
   return (
     <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
       <video
+        key={ videoUrl }
         id="generated-video"
-        className="w-full h-full object-cover"
+        className="w-full h-full object-contain"
         poster={ thumbnailUrl }
         onPlay={ () => setIsPlaying( true ) }
         onPause={ () => setIsPlaying( false ) }
         onEnded={ () => setIsPlaying( false ) }
+        autoPlay
         controls
       >
         <source src={ videoUrl } type="video/mp4" />

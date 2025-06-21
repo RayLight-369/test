@@ -137,34 +137,5 @@ export class VideoGenerationClient {
     }
   }
 
-  async getVideoStatus( videoId: string ): Promise<ApiResponse<{ status: string; progress: number; }>> {
-    try {
-      const res = await fetch( `${ this.baseUrl }/status/${ videoId }`, {
-        headers: { Authorization: `Bearer ${ this.apiKey }` },
-      } );
 
-      const data = await res.json();
-
-      if ( !res.ok ) {
-        return {
-          success: false,
-          error: {
-            message: data.message || "Failed to get video status",
-            code: data.code || "STATUS_ERROR",
-          },
-        };
-      }
-
-      return { success: true, data };
-    } catch ( err ) {
-      return {
-        success: false,
-        error: {
-          message: "Network error occurred",
-          code: "NETWORK_ERROR",
-          details: err,
-        },
-      };
-    }
-  }
 }
