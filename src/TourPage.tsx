@@ -161,7 +161,7 @@ export default function TourPage() {
       <div className="relative z-10 container mx-auto px-4 py-8">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-6 py-2 mb-6">
-            <Sparkles className="w-4 h-4 text-slate-400" />
+            <Sparkles className="w-4 h-4 text-pink-400" />
             <span className="text-sm text-slate-200">Powered by Google Gemini Veo3</span>
           </div>
           <h1 className="text-5xl font-bold bg-gradient-to-r from-white via-slate-200 to-white bg-clip-text text-transparent mb-4">
@@ -341,7 +341,7 @@ export default function TourPage() {
 
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Badge variant="secondary" className="bg-green-500/20 text-green-300 border-green-500/30">
+                      <Badge variant="secondary" className="bg-pink-500/20 text-pink-300 border-pink-500/30">
                         ✓ Generated
                       </Badge>
                       <span className="text-sm text-slate-300">
