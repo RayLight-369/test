@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Play, Download, Sparkles, Home, Camera, Wand2 } from "lucide-react";
+import VideoPlayer from "@/components/VideoPlayer";
 
 interface PropertyDetails {
   address: string;
@@ -23,6 +24,15 @@ interface TourStyle {
   name: string;
   description: string;
   icon: string;
+}
+
+interface GeneratedTour {
+  videoUrl: string;
+  thumbnailUrl?: string;
+  duration: string;
+  resolution: string;
+  format: string;
+  fileSize: string;
 }
 
 const tourStyles: TourStyle[] = [
@@ -52,6 +62,42 @@ const tourStyles: TourStyle[] = [
   },
 ];
 
+// Mock video URLs for different tour styles
+const mockVideos: Record<string, GeneratedTour> = {
+  luxury: {
+    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    thumbnailUrl: "/placeholder.svg?height=400&width=600",
+    duration: "2:45",
+    resolution: "4K UHD",
+    format: "MP4",
+    fileSize: "125 MB",
+  },
+  family: {
+    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+    thumbnailUrl: "/placeholder.svg?height=400&width=600",
+    duration: "2:30",
+    resolution: "4K UHD",
+    format: "MP4",
+    fileSize: "118 MB",
+  },
+  modern: {
+    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+    thumbnailUrl: "/placeholder.svg?height=400&width=600",
+    duration: "2:15",
+    resolution: "4K UHD",
+    format: "MP4",
+    fileSize: "95 MB",
+  },
+  cinematic: {
+    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+    thumbnailUrl: "/placeholder.svg?height=400&width=600",
+    duration: "3:00",
+    resolution: "4K UHD",
+    format: "MP4",
+    fileSize: "142 MB",
+  },
+};
+
 export default function TourPage() {
   const [ propertyDetails, setPropertyDetails ] = useState<PropertyDetails>( {
     address: "12012 Crest Ct, Beverly Hills, CA 90210",
@@ -65,7 +111,7 @@ export default function TourPage() {
 
   const [ selectedStyle, setSelectedStyle ] = useState<string>( "" );
   const [ isGenerating, setIsGenerating ] = useState( false );
-  const [ generatedVideo, setGeneratedVideo ] = useState<string | null>( null );
+  const [ generatedTour, setGeneratedTour ] = useState<GeneratedTour | null>( null );
   const [ generationProgress, setGenerationProgress ] = useState( 0 );
 
   const handleGenerate = async () => {
@@ -73,6 +119,7 @@ export default function TourPage() {
 
     setIsGenerating( true );
     setGenerationProgress( 0 );
+    setGeneratedTour( null );
 
     // Simulate video generation progress
     const progressInterval = setInterval( () => {
@@ -80,25 +127,28 @@ export default function TourPage() {
         if ( prev >= 100 ) {
           clearInterval( progressInterval );
           setIsGenerating( false );
-          // Mock video URL - in real implementation, this would be from Gemini Veo3
-          setGeneratedVideo( "/placeholder.svg?height=400&width=600" );
+          // Set the mock video based on selected style
+          setGeneratedTour( mockVideos[ selectedStyle ] || mockVideos.luxury );
           return 100;
         }
-        return prev + Math.random() * 15;
+        return prev + Math.random() * 12 + 3; // Slightly faster progress
       } );
-    }, 500 );
+    }, 400 );
   };
 
   const handleDownload = () => {
-    // Mock download functionality
-    const link = document.createElement( "a" );
-    link.href = generatedVideo || "";
-    link.download = `property-tour-${ propertyDetails.address.replace( /[^a-zA-Z0-9]/g, "-" ) }.mp4`;
-    link.click();
+    if ( generatedTour?.videoUrl ) {
+      const link = document.createElement( "a" );
+      link.href = generatedTour.videoUrl;
+      link.download = `property-tour-${ propertyDetails.address.replace( /[^a-zA-Z0-9]/g, "-" ) }.mp4`;
+      document.body.appendChild( link );
+      link.click();
+      document.body.removeChild( link );
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-slate-900">
       {/* Decorative grid background */ }
       <div
         className="absolute inset-0 opacity-20"
@@ -107,7 +157,7 @@ export default function TourPage() {
             "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fillRule='evenodd'%3E%3Cg fill='%239C92AC' fillOpacity='0.05'%3E%3Ccircle cx='30' cy='30' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")",
         } }
       />
-      \
+
       <div className="relative z-10 container mx-auto px-4 py-8">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-6 py-2 mb-6">
@@ -285,21 +335,9 @@ export default function TourPage() {
                     <p className="text-sm text-slate-300 mt-2">{ Math.round( generationProgress ) }% complete</p>
                   </div>
                 </div>
-              ) : generatedVideo ? (
+              ) : generatedTour ? (
                 <div className="space-y-4">
-                  <div className="aspect-video bg-black rounded-lg overflow-hidden relative group">
-                    <img
-                      src={ generatedVideo || "/placeholder.svg" }
-                      alt="Generated Property Tour"
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button size="lg" className="bg-white/20 backdrop-blur-sm hover:bg-white/30">
-                        <Play className="w-6 h-6 mr-2" />
-                        Play Tour
-                      </Button>
-                    </div>
-                  </div>
+                  <VideoPlayer videoUrl={ generatedTour.videoUrl } thumbnailUrl={ generatedTour.thumbnailUrl } />
 
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -325,11 +363,11 @@ export default function TourPage() {
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
                         <span className="text-slate-400">Duration:</span>
-                        <span className="text-white ml-2">2:45</span>
+                        <span className="text-white ml-2">{ generatedTour.duration }</span>
                       </div>
                       <div>
                         <span className="text-slate-400">Resolution:</span>
-                        <span className="text-white ml-2">4K UHD</span>
+                        <span className="text-white ml-2">{ generatedTour.resolution }</span>
                       </div>
                       <div>
                         <span className="text-slate-400">Style:</span>
@@ -337,7 +375,7 @@ export default function TourPage() {
                       </div>
                       <div>
                         <span className="text-slate-400">Format:</span>
-                        <span className="text-white ml-2">MP4</span>
+                        <span className="text-white ml-2">{ generatedTour.format }</span>
                       </div>
                     </div>
                   </div>
